@@ -1,0 +1,8 @@
+<p>Teljes ranglista: <a href="/ranking/">itt</a></p>
+<p>Feladat ranglista: <a href="/problem/ranking/">itt</a></p>
+<p>Felhasználók: {{range $u := .UserList}} <a href="/user/{{$u}}/">{{$u}}</a>{{end}}</p>
+<br><br>
+<p>Feladatok: {{range $p := .ProblemList}} <a href="/problem/{{$p.Topic}}/{{$p.Problem}}/">{{$p.Problem}}</a>{{end}}</p>
+<br><br>
+<p>Témák: {{range $t := .TopicList}} <a href="/topic/{{$t}}/ranking/">{{$t}}</a>{{end}}</p>
+<br><br>

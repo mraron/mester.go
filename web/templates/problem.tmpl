@@ -1,0 +1,5 @@
+<table>
+{{range $i := .}}
+<tr><td><a href="/user/{{$i.Name}}/">{{$i.Name}}</td><td>{{$i.Point}}</td></tr>
+{{end}}
+</table>

@@ -1,0 +1,5 @@
+<table>
+{{range $i := .}}
+<tr><td>{{$i.Topic}}</td><td><a href="/problem/{{$i.Topic}}/{{$i.Problem}}/">{{$i.Problem}}</a></td><td>{{$i.Point}}</td></tr>
+{{end}}
+</table>

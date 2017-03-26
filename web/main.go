@@ -10,6 +10,9 @@ import (
 	"encoding/json"
 	"sort"
 	"html/template"
+	_"math"
+
+	"math"
 )
 
 
@@ -36,7 +39,7 @@ var UserPage map[string][]Solution
 type RankRow struct {
 	Name string
 	Link string
-	PointSum int
+	PointSum float64
 }
 type RankList []RankRow
 
@@ -61,7 +64,41 @@ var ProblemList map[string]Id
 var BigRanking RankList
 var ProblemRanking RankList;
 
+var SolversCount map[string]int
+var PointSum map[string]int
+
+const DynamicRating = true
+
+var RatingFunction func(Solution) float64
+
+func CalculateSumRating(val Solution) float64 {
+	return float64(val.Point)
+}
+
+func CalculateDynamicRating(val Solution) float64 {
+	pointsum := float64(0)
+	solvercount := 0
+	for _, val2 := range ProblemPage[Id{val.Topic,val.Problem}] {
+		if val2.Point>=val.Point {
+			pointsum += float64(val2.Point)
+			solvercount ++
+		}
+	}
+
+	if float64(PointSum[val.Problem])/float64(SolversCount[val.Problem])>float64(val.Point) {
+		return 0
+	}
+
+	return math.Sqrt(float64(pointsum*float64(val.Point))/float64(solvercount))
+}
+
 func init() {
+	if DynamicRating {
+		RatingFunction = CalculateDynamicRating
+	}else {
+		RatingFunction = CalculateSumRating
+	}
+
 	f, err := os.Open(dataDir)
 	if err != nil {
 		log.Fatal(err)
@@ -89,6 +126,14 @@ func init() {
 		UserPage[val.Name] = append(UserPage[val.Name], val)
 	}
 
+	SolversCount = make(map[string]int)
+	PointSum = make(map[string]int)
+
+	for _, val := range Solutions {
+		SolversCount[val.Problem] ++
+		PointSum[val.Problem] += val.Point
+	}
+
 	TopicRankList = make(map[string]RankList)
 
 	for _, val := range Solutions {
@@ -100,22 +145,22 @@ func init() {
 		for ind, val2 := range TopicRankList[val.Topic] {
 			if val2.Name == val.Name {
 				found = true
-				TopicRankList[val.Topic][ind].PointSum += val.Point
+				TopicRankList[val.Topic][ind].PointSum += RatingFunction(val)
 			}
 		}
 		if !found {
-			TopicRankList[val.Topic] = append(TopicRankList[val.Topic], RankRow{val.Name,"/user/"+val.Name+"/", val.Point})
+			TopicRankList[val.Topic] = append(TopicRankList[val.Topic], RankRow{val.Name,"/user/"+val.Name+"/", RatingFunction(val)})
 		}
 
 		found = false
 		for ind, val2 := range BigRanking {
 			if val2.Name == val.Name {
 				found = true
-				BigRanking[ind].PointSum += val.Point
+				BigRanking[ind].PointSum += RatingFunction(val)
 			}
 		}
 		if !found {
-			BigRanking = append(BigRanking, RankRow{val.Name,"/user/"+val.Name+"/", val.Point})
+			BigRanking = append(BigRanking, RankRow{val.Name,"/user/"+val.Name+"/", RatingFunction(val)})
 		}
 
 		found = false
@@ -150,6 +195,7 @@ func init() {
 
 
 func main() {
+
 	router := mux.NewRouter()
 	renderer := render.New(render.Options{
 		Layout: "layout",

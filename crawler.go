@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"time"
 	"crypto/tls"
 	"net/http"
 	"strconv"
@@ -67,8 +66,6 @@ func (c* Crawler) Crawl(id, L, R int) (error){
 					c.sols = append(c.sols, Solution{statement, topic, problem, val.Name, val.Point})
 				}
 			}
-
-			time.Sleep(time.Millisecond * 50)
 		}
 	}
 

@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"sort"
 	"html/template"
-	_"math"
+
 
 	"math"
 )
@@ -33,8 +33,8 @@ type Id struct {
 	Problem string
 }
 
-var ProblemPage map[Id][]Solution
-var UserPage map[string][]Solution
+var ProblemPage map[Id]*SolutionList
+var UserPage map[string]*SolutionList
 
 type RankRow struct {
 	Name string
@@ -78,18 +78,26 @@ func CalculateSumRating(val Solution) float64 {
 func CalculateDynamicRating(val Solution) float64 {
 	pointsum := float64(0)
 	solvercount := 0
-	for _, val2 := range ProblemPage[Id{val.Topic,val.Problem}] {
+	for _, val2 := range ProblemPage[Id{val.Topic,val.Problem}].Solutions {
 		if val2.Point>=val.Point {
 			pointsum += float64(val2.Point)
 			solvercount ++
 		}
 	}
-
-	if float64(PointSum[val.Problem])/float64(SolversCount[val.Problem])>float64(val.Point) {
-		return 0
+	
+	hossz := len(ProblemPage[Id{val.Topic, val.Problem}].Solutions)
+	sign := float64(1.0)
+	if ProblemPage[Id{val.Topic, val.Problem}].Solutions[hossz/2].Point>val.Point {
+		sign = float64(-1)
 	}
 
-	return math.Sqrt(float64(pointsum*float64(val.Point))/float64(solvercount))
+	return sign*math.Sqrt(float64(pointsum*float64(val.Point))/float64(solvercount))
+}
+
+type SolutionList struct {
+	Solutions []Solution
+	RelativeDistribution []float64
+	MaximumElement float64
 }
 
 func init() {
@@ -110,20 +118,38 @@ func init() {
 		log.Fatal(err)
 	}
 
-	ProblemPage = make(map[Id][]Solution)
+	ProblemPage = make(map[Id]*SolutionList)
 	for _, val := range Solutions {
-		ProblemPage[Id{val.Topic, val.Problem}] = make([]Solution, 0)
+		ProblemPage[Id{val.Topic, val.Problem}] = &SolutionList{}
+		ProblemPage[Id{val.Topic, val.Problem}].RelativeDistribution = make([]float64, 0)
+		ProblemPage[Id{val.Topic, val.Problem}].Solutions = make([]Solution, 0)
 	}
 	for _, val := range Solutions {
-		ProblemPage[Id{val.Topic, val.Problem}] = append(ProblemPage[Id{val.Topic, val.Problem}], val)
+		if ProblemPage[Id{val.Topic, val.Problem}].MaximumElement < float64(val.Point) + 1 {
+			ProblemPage[Id{val.Topic, val.Problem}].MaximumElement = float64(val.Point) + 1
+		}
+	}
+	
+	for _, val := range Solutions {
+		ProblemPage[Id{val.Topic, val.Problem}].RelativeDistribution = append(ProblemPage[Id{val.Topic, val.Problem}].RelativeDistribution, float64(val.Point)/ProblemPage[Id{val.Topic, val.Problem}].MaximumElement)
+		ProblemPage[Id{val.Topic, val.Problem}].Solutions = append(ProblemPage[Id{val.Topic, val.Problem}].Solutions, val) 	
 	}
 
-	UserPage = make(map[string][]Solution)
+	UserPage = make(map[string]*SolutionList)
 	for _, val := range Solutions {
-		UserPage[val.Name] = make([]Solution, 0)
+		UserPage[val.Name] = &SolutionList{}
+		UserPage[val.Name].RelativeDistribution = make([]float64, 0)
+		UserPage[val.Name].Solutions = make([]Solution, 0)
 	}
 	for _, val := range Solutions {
-		UserPage[val.Name] = append(UserPage[val.Name], val)
+		if UserPage[val.Name].MaximumElement < float64(val.Point) + 1 {
+			UserPage[val.Name].MaximumElement = float64(val.Point) + 1
+		}
+	}
+
+	for _, val := range Solutions {
+		UserPage[val.Name].RelativeDistribution = append(UserPage[val.Name].RelativeDistribution, float64(val.Point)/ProblemPage[Id{val.Topic, val.Problem}].MaximumElement)
+		UserPage[val.Name].Solutions = append(UserPage[val.Name].Solutions, val)
 	}
 
 	SolversCount = make(map[string]int)

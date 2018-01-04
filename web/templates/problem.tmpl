@@ -1,5 +1,20 @@
+<div style="width:1000;height:500;"><div id="userChart"></div></div>
+
 <table>
-{{range $i := .}}
+{{range $i := .Solutions}}
 <tr><td><a href="/user/{{$i.Name}}/">{{$i.Name}}</td><td>{{$i.Point}}</td></tr>
 {{end}}
 </table>
+
+<script>
+var trace = {
+	x: [{{range $i := .RelativeDistribution}}
+				{{$i}},
+	{{end}}],
+	type: 'histogram',
+};
+
+var data = [trace];
+Plotly.newPlot("userChart", data);
+</script>
+

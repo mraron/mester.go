@@ -45,7 +45,7 @@ func main() {
 
 	//haladó
 	if *topicHalado || *topicAll {
-		err = c.Crawl(2, 24, 44)
+		err = c.Crawl(2, 26, 46)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -53,7 +53,7 @@ func main() {
 
 	//nt2017
 	if *topicNT2017 || *topicAll {
-		err = c.Crawl(3,45,51)
+		err = c.Crawl(3,47,60)
 		if err != nil {
 			log.Fatal(err)
 		}

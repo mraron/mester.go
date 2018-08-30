@@ -4,6 +4,7 @@ import (
 	"log"
 	"github.com/PuerkitoBio/goquery"
 	"strings"
+	"fmt"
 	"net/http"
 	"strconv"
 	"net/url"
@@ -245,7 +246,7 @@ func GetTopicName(c *http.Client) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//fmt.Println(d.Text())
+	fmt.Println(d.Text(), "!")
 	ans := ""
 	d.Find("h1").Each(func(i int, s *goquery.Selection) {
 		if i != 0 {

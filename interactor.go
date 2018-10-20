@@ -224,11 +224,11 @@ func GetSolvers(c *http.Client) []Solver {
 }
 
 func GetTopicName(c *http.Client) string {
-	req, err := http.NewRequest("GET", "https://mester.inf.elte.hu/faces/eredmenylista.xhtml", nil)
+	req, err := http.NewRequest("GET", "https://mester.inf.elte.hu/faces/megoldasaim.xhtml", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	req.Header.Set("Referer", "https://mester.inf.elte.hu/faces/eredmenylista.xhtml")
+	req.Header.Set("Referer", "https://mester.inf.elte.hu/faces/megoldasaim.xhtml")
 	req.Header.Set("Host", "mester.inf.elte.hu")
 	req.Header.Set("Origin", "https://mester.inf.elte.hu")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:46.0) Gecko/20100101 Firefox/46.0")

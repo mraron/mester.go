@@ -46,6 +46,7 @@ func (c* Crawler) Crawl(id, L, R int) (error){
 		log.Print("Found ",problemCount, " problems")
 
 		topic := GetTopicName(c.client)
+		log.Print("Name of topic is ", topic);
 		for j := 1; j <= problemCount; j++ {
 			log.Print("Getting problem ",j)
 			ChooseProblem(c.client, j)

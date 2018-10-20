@@ -239,9 +239,10 @@ func main() {
 			TopicList map[string]string
 		}{UserList, ProblemList, TopicList})
 	})
-	router.HandleFunc("/problem/{topic}/{problem}/", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		renderer.HTML(w, http.StatusOK, "problem", ProblemPage[Id{vars["topic"], vars["problem"]}])
+	router.HandleFunc("/problem/", func(w http.ResponseWriter, r *http.Request) {
+		topics := r.URL.Query()["topic"]
+		problems := r.URL.Query()["problem"]
+		renderer.HTML(w, http.StatusOK, "problem", ProblemPage[Id{topics[0], problems[0]}])
 	})
 
 	router.HandleFunc("/problem/ranking/", func(w http.ResponseWriter, r *http.Request) {
@@ -253,9 +254,9 @@ func main() {
 		renderer.HTML(w, http.StatusOK, "user", UserPage[vars["name"]])
 	})
 
-	router.HandleFunc("/topic/{topic}/ranking/", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		renderer.HTML(w, http.StatusOK, "ranking", TopicRankList[vars["topic"]])
+	router.HandleFunc("/topic_ranking/", func(w http.ResponseWriter, r *http.Request) {
+		topics := r.URL.Query()["topic"]
+		renderer.HTML(w, http.StatusOK, "ranking", TopicRankList[topics[0]])
 	})
 
 	router.HandleFunc("/ranking/", func(w http.ResponseWriter, r *http.Request) {

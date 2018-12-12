@@ -36,6 +36,19 @@ type Id struct {
 var ProblemPage map[Id]*SolutionList
 var UserPage map[string]*SolutionList
 
+type Comparison struct {
+	Topic string
+	Problem string
+	
+	Tried1 bool
+	Point1 int
+		
+	Tried2 bool
+	Point2 int
+	
+	Verdict int
+}
+
 type RankRow struct {
 	Name string
 	Link string
@@ -261,6 +274,70 @@ func main() {
 
 	router.HandleFunc("/ranking/", func(w http.ResponseWriter, r *http.Request) {
 		renderer.HTML(w, http.StatusOK, "ranking", BigRanking)
+	})
+	
+	router.HandleFunc("/compare/{you}/{other}/", func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		clist := make([]*Comparison, 0)
+		
+		for _, sol := range UserPage[vars["you"]].Solutions {
+			clist = append(clist, &Comparison{sol.Topic, sol.Problem, true, sol.Point, false, -1, -1})
+		}
+		
+		for _, sol := range UserPage[vars["other"]].Solutions {
+			found := false
+			for id, comp := range clist {
+				if comp.Topic == sol.Topic && comp.Problem == sol.Problem {
+					found = true
+					clist[id].Point2 = sol.Point
+					clist[id].Tried2 = true
+				}
+			}
+			
+			if !found {
+				clist = append(clist, &Comparison{sol.Topic, sol.Problem, false, -1, true, sol.Point, -1})
+			}
+		}
+		
+				
+		for i, _ := range clist {
+			if clist[i].Tried1 && (!clist[i].Tried2 || (clist[i].Tried2 && clist[i].Point1 > clist[i].Point2)) {
+				clist[i].Verdict = -1
+			} else if clist[i].Tried1 && clist[i].Tried2 && clist[i].Point1 == clist[i].Point2 {
+				clist[i].Verdict = 0
+			}else {
+				clist[i].Verdict = 1
+			}
+		}
+		
+		
+		sort.SliceStable(clist, func(i, j int) bool {
+			if clist[i].Verdict!=clist[j].Verdict {
+				return clist[i].Verdict>clist[j].Verdict
+			}
+			
+			vali := 0
+			if clist[i].Tried1 {
+				vali += 10
+			}
+			
+			if !clist[i].Tried2 {
+				vali += 1
+			}
+			
+			valj := 0
+			if clist[j].Tried1 {
+				valj += 10
+			}
+			
+			if !clist[j].Tried2 {
+				valj += 1
+			}
+			
+			return vali<valj
+		})
+
+		renderer.HTML(w, http.StatusOK, "compare", clist)
 	})
 
 	http.Handle("/", router)

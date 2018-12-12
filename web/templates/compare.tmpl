@@ -1,0 +1,5 @@
+<table border="1"> 
+{{range $i := .}}
+<tr> <td><a href="/problem/?topic={{$i.Topic}}&problem={{$i.Problem}}">{{$i.Topic}} / {{$i.Problem}}</a></td> <td>{{if $i.Tried1}} {{$i.Point1}} {{else}} - {{end}}</td> <td>{{if eq $i.Verdict -1}}>{{else}}{{if eq $i.Verdict 0}}={{else}}<{{end}}{{end}}</td> <td>{{if $i.Tried2}} {{$i.Point2}} {{else}} - {{end}}</td></tr>
+{{end}}
+</table>

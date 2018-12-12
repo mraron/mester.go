@@ -1,8 +1,8 @@
 <div style="width:1000;height:500;"><div id="userChart"></div></div>
 
-<table>
+<table border="1">
 {{range $i := .Solutions}}
-<tr><td>{{$i.Topic}}</td><td><a href="/problem/?topic={{$i.Topic}}&{{$i.Problem}}/">{{$i.Problem}}</a></td><td>{{$i.Point}}</td></tr>
+<tr><td>{{$i.Topic}}</td><td><a href="/problem/?topic={{$i.Topic}}&problem={{$i.Problem}}">{{$i.Problem}}</a></td><td>{{$i.Point}}</td></tr>
 {{end}}
 </table>
 

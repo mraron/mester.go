@@ -1,3 +1,29 @@
+<script>
+$( function() {
+var availableNames = [
+{{range $u := .UserList}}"{{$u}}",{{end}}
+""
+];
+$( "#egyik" ).autocomplete({
+  source: availableNames
+});
+$( "#masik" ).autocomplete({
+  source: availableNames
+});
+$( "#compare").click ( function(e){
+	window.location.href = "/compare/"+$("#egyik").val()+"/"+$("#masik").val()+"/";
+	
+});
+} );
+
+</script>
+
+<p>Összehasonlítás: 
+<br>
+Egyik: <input id="egyik"><br>
+Masik: <input id="masik"><br>
+<input type="submit" id="compare" value="Összehasonlít"> 
+</p>
 <p>Teljes ranglista: <a href="/ranking/">itt</a></p>
 <p>Feladat ranglista: <a href="/problem/ranking/">itt</a></p>
 <p>Felhasználók: {{range $u := .UserList}} <a href="/user/{{$u}}/">{{$u}}</a>{{end}}</p>

@@ -143,8 +143,8 @@ func GetStatement(c *http.Client) []byte {
 	vs := GetViewState(c, "https://mester.inf.elte.hu/faces/feladat.xhtml")
 
 	form := make(url.Values)
-	form.Add("j_idt9", "j_idt9")
-	form.Add("j_idt9:j_idt10", "megjelenit")
+	form.Add("j_idt10", "j_idt10")
+	form.Add("j_idt10:j_idt11", "megjelenit")
 	form.Add("javax.faces.ViewState", vs)
 	req, err := http.NewRequest("POST", "https://mester.inf.elte.hu/faces/leiras.xhtml", strings.NewReader(form.Encode()))
 	if err != nil {

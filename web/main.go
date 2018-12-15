@@ -1,16 +1,19 @@
 package main
 
 import (
+	"time"
 	"github.com/unrolled/render"
 	"net/http"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/handlers"
 	"log"
+	"github.com/fsnotify/fsnotify"
 	"os"
 	_ "html/template"
 	"encoding/json"
 	"sort"
 	"html/template"
-
+	"sync"
 
 	"math"
 )
@@ -111,19 +114,17 @@ type SolutionList struct {
 	Solutions []Solution
 	RelativeDistribution []float64
 	MaximumElement float64
+	Statement string
 }
 
-func init() {
-	if DynamicRating {
-		RatingFunction = CalculateDynamicRating
-	}else {
-		RatingFunction = CalculateSumRating
-	}
-
+func LoadAndParseData() {
+	log.Print("begin parsing: ", dataDir)
+	dataLock.Lock()
 	f, err := os.Open(dataDir)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer f.Close()
 
 	dec := json.NewDecoder(f)
 	err = dec.Decode(&Solutions)
@@ -138,6 +139,7 @@ func init() {
 		ProblemPage[Id{val.Topic, val.Problem}].Solutions = make([]Solution, 0)
 	}
 	for _, val := range Solutions {
+		ProblemPage[Id{val.Topic, val.Problem}].Statement = val.Statement
 		if ProblemPage[Id{val.Topic, val.Problem}].MaximumElement < float64(val.Point) + 1 {
 			ProblemPage[Id{val.Topic, val.Problem}].MaximumElement = float64(val.Point) + 1
 		}
@@ -229,13 +231,71 @@ func init() {
 		ProblemList[val.Problem] = Id{val.Topic, val.Problem}
 		TopicList[val.Topic] = val.Topic
 	}
+	dataLock.Unlock()
+	log.Print("parsed: ", dataDir)
 }
 
+func init() {
+	if DynamicRating {
+		RatingFunction = CalculateDynamicRating
+	}else {
+		RatingFunction = CalculateSumRating
+	}
+	
+	LoadAndParseData()	
+}
 
+var dataLock sync.Mutex
+
+func LockMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		println("lock")
+		dataLock.Lock()
+		next.ServeHTTP(w, r)
+	})
+}
+
+func UnlockMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+		println("unlock")
+		dataLock.Unlock()
+	})
+}
 
 func main() {
-
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer watcher.Close()
+	
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+				log.Println("event:", event)
+				time.Sleep(5*time.Second)
+				LoadAndParseData()
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				log.Println("error:", err)
+			}
+		}
+	}()
+	
+	err = watcher.Add(dataDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	
 	router := mux.NewRouter()
+	
 	renderer := render.New(render.Options{
 		Layout: "layout",
 		Extensions: []string{".tmpl", ".html"},
@@ -340,6 +400,8 @@ func main() {
 		renderer.HTML(w, http.StatusOK, "compare", clist)
 	})
 
-	http.Handle("/", router)
+	http.Handle("/", handlers.LoggingHandler(os.Stdout, UnlockMiddleware(LockMiddleware(router))))
+	http.Handle("/statements/", http.StripPrefix("/statements/", http.FileServer(http.Dir("../statements/"))))
+	
 	http.ListenAndServe(":8080", nil)
 }

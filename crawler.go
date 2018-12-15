@@ -53,7 +53,8 @@ func (c* Crawler) Crawl(id, L, R int) (error){
 			problem := GetProblemName(c.client)
 			statement := strconv.Itoa(id) + "-" + strconv.Itoa(i) + "-" + strconv.Itoa(j) + ".pdf"
 			if(c.exportProblems) {
-				o, err := os.Create(statement)
+				_ = os.Mkdir("statements/", 0777)
+				o, err := os.Create("statements/"+statement)
 				if err != nil {
 					return err
 				}

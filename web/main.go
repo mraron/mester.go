@@ -181,6 +181,8 @@ func LoadAndParseData() {
 		TopicRankList[val.Topic] = make(RankList, 0)
 	}
 
+	BigRanking = make(RankList, 0)
+
 	for _, val := range Solutions {
 		found := false
 		for ind, val2 := range TopicRankList[val.Topic] {

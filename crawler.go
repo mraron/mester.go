@@ -107,7 +107,7 @@ func (c* Crawler) Crawl(id, L, R int) (error){
 					}else {
 						if c.sols[c.lookup[ident]].Point != val.Point {
 							c.sols[c.lookup[ident]].Point = val.Point
-							c.sols[c.lookup[ident]].PointHistory = append(c.sols[len(c.sols)-1].PointHistory, PointHistoryElem{val.Point, time.Now()});
+							c.sols[c.lookup[ident]].PointHistory = append(c.sols[c.lookup[ident]].PointHistory, PointHistoryElem{val.Point, time.Now()});
 						}
 					}
 				}

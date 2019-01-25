@@ -1,0 +1,10 @@
+<table class="table is-bordered is-fullwidth">
+{{range $i := .}}
+<tr>
+<td><a href="/user/{{$i.Name}}/">{{$i.Name}}</a></td>
+<td><a href="/topic_ranking/?topic={{$i.Topic}}">{{$i.Topic}}</a></td>
+<td><a href="/problem/?topic={{$i.Topic}}&problem={{$i.Problem}}">{{$i.Problem}}</a></td>
+<td>{{$i.Point}}</td>
+<td>{{$i.Time}}</td>
+{{end}}
+</table>

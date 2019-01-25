@@ -5,8 +5,47 @@
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
+<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 </head>
 <body>
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="#">
+      <strong>MESTER.GO</strong>
+    </a>
+
+    <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarMesterGo">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarMesterGo" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item" href="/">
+        Főoldal
+      </a>
+
+      <a class="navbar-item" href="/ranking/">
+        Ranglista
+      </a>
+
+	  <a class="navbar-item" href="/problem/ranking/">
+        Feladat ranglista
+      </a>
+
+	  <a class="navbar-item" href="/submissions/">
+        Státusz
+      </a>
+      
+    </div>
+  </div>
+</nav>
+
+<div class="container">
 {{yield}}
+</div>
 </body>
 </html>

@@ -21,12 +21,26 @@ import (
 
 const dataDir = "../data.json"
 
+type PointHistoryElem struct {
+    Time time.Time
+    Point int
+}
+
 type Solution struct {
 	Statement string
 	Topic     string
 	Problem   string
 	Name      string
 	Point     int
+	PointHistory []PointHistoryElem
+}
+
+type Submission struct {
+	Topic string
+	Problem string
+	Name string
+	Point int
+	Time time.Time
 }
 
 var Solutions []Solution
@@ -83,6 +97,8 @@ var ProblemRanking RankList;
 var SolversCount map[string]int
 var PointSum map[string]int
 
+var Submissions []Submission
+
 const DynamicRating = true
 
 var RatingFunction func(Solution) float64
@@ -115,7 +131,9 @@ type SolutionList struct {
 	RelativeDistribution []float64
 	MaximumElement float64
 	Statement string
+	Submissions []Submission
 }
+
 
 func LoadAndParseData() {
 	log.Print("begin parsing: ", dataDir)
@@ -155,6 +173,7 @@ func LoadAndParseData() {
 		UserPage[val.Name] = &SolutionList{}
 		UserPage[val.Name].RelativeDistribution = make([]float64, 0)
 		UserPage[val.Name].Solutions = make([]Solution, 0)
+		UserPage[val.Name].Submissions = make([]Submission, 0)
 	}
 	for _, val := range Solutions {
 		if UserPage[val.Name].MaximumElement < float64(val.Point) + 1 {
@@ -233,6 +252,25 @@ func LoadAndParseData() {
 		ProblemList[val.Problem] = Id{val.Topic, val.Problem}
 		TopicList[val.Topic] = val.Topic
 	}
+	
+	Submissions = make([]Submission, 0)
+	for _, sol := range Solutions {
+		for _, helem := range sol.PointHistory {
+			Submissions = append(Submissions, Submission{sol.Topic, sol.Problem, sol.Name, helem.Point, helem.Time})
+			UserPage[sol.Name].Submissions = append(UserPage[sol.Name].Submissions, Submission{sol.Topic, sol.Problem, sol.Name, helem.Point, helem.Time})
+		}
+	}
+	
+	sort.Slice(Submissions, func(i, j int) bool {
+		return Submissions[j].Time.Before(Submissions[i].Time)
+	})
+	
+	for key, _ := range UserPage {
+		sort.Slice(UserPage[key].Submissions, func(i, j int) bool {
+			return UserPage[key].Submissions[j].Time.Before(UserPage[key].Submissions[i].Time)
+		})
+	}
+	
 	dataLock.Unlock()
 	log.Print("parsed: ", dataDir)
 }
@@ -401,6 +439,10 @@ func main() {
 
 		renderer.HTML(w, http.StatusOK, "compare", clist)
 	})
+	
+	router.HandleFunc("/submissions/", func(w http.ResponseWriter, r *http.Request) {
+		renderer.HTML(w, http.StatusOK, "submissions", Submissions)
+	});
 
 	http.Handle("/", handlers.LoggingHandler(os.Stdout, UnlockMiddleware(LockMiddleware(router))))
 	http.Handle("/statements/", http.StripPrefix("/statements/", http.FileServer(http.Dir("../statements/"))))

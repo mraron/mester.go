@@ -17,18 +17,40 @@ $( "#compare").click ( function(e){
 } );
 
 </script>
-
-<p>Összehasonlítás: 
 <br>
-Egyik: <input id="egyik"><br>
-Masik: <input id="masik"><br>
-<input type="submit" id="compare" value="Összehasonlít"> 
-</p>
-<p>Teljes ranglista: <a href="/ranking/">itt</a></p>
-<p>Feladat ranglista: <a href="/problem/ranking/">itt</a></p>
-<p>Felhasználók: {{range $u := .UserList}} <a href="/user/{{$u}}/">{{$u}}</a>{{end}}</p>
-<br><br>
-<p>Feladatok: {{range $p := .ProblemList}} <a href="/problem/?topic={{$p.Topic}}&problem={{$p.Problem}}">{{$p.Problem}}</a>{{end}}</p>
-<br><br>
-<p>Témák: {{range $t := .TopicList}} <a href="/topic_ranking/?topic={{$t}}">{{$t}}</a>{{end}}</p>
-<br><br>
+<div class="card">
+  <div class="card-content">
+    <p class="subtitle">
+		Összehasonlítás
+	</p>
+	Egyik: <input class="input" id="egyik"><br>
+	Masik: <input class="input" id="masik"><br>
+	<br>
+	<input type="submit" id="compare" value="Összehasonlít" class="button">     
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-content">
+    <p class="subtitle">
+		Felhasználók
+	</p>
+	{{range $u := .UserList}} <a href="/user/{{$u}}/">{{$u}}</a>{{end}}
+  </div>
+</div>
+<div class="card">
+  <div class="card-content">
+    <p class="subtitle">
+		Feladatok
+	</p>
+	{{range $p := .ProblemList}} <a href="/problem/?topic={{$p.Topic}}&problem={{$p.Problem}}">{{$p.Problem}}</a>{{end}}
+  </div>
+</div>
+<div class="card">
+  <div class="card-content">
+    <p class="subtitle">
+		Témák
+	</p>
+	{{range $t := .TopicList}} <a href="/topic_ranking/?topic={{$t}}">{{$t}}</a>{{end}}
+  </div>
+</div>

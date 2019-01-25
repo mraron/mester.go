@@ -54,14 +54,15 @@ func main() {
 
 	//nt/oktv/válogató
 	if *topicNT2017 || *topicAll {
-		err = c.Crawl(3,48,61)
+		err = c.Crawl(3,48,65)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
+	//komal
 	if *topicKomal || *topicAll {
-	    err = c.Crawl(4, 62, 62)
+	    err = c.Crawl(4, 66, 66)
 	    if err != nil {
 			log.Fatal(err)
 	    }

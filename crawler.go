@@ -6,20 +6,35 @@ import (
 	"crypto/tls"
 	"net/http"
 	"strconv"
+	"time"
 	"encoding/json"
 )
 
-type Solution struct {
-	Statement string
+type PointHistoryElem struct {
+	Point int
+	Time time.Time
+}
+
+
+type Identifier struct {
 	Topic     string
 	Problem   string
 	Name      string
-	Point     int
 }
+
+type Solution struct {
+	Statement string
+	Identifier
+	Point     int
+	PointHistory []PointHistoryElem
+}
+
+
 
 type Crawler struct {
 	client *http.Client
 	sols []Solution
+	lookup map[Identifier]int
 	getSolutions bool
 	exportProblems bool
 }
@@ -30,8 +45,27 @@ func NewCrawler(getSolutions, exportProblems bool) *Crawler {
 	}
 
 	client := &http.Client{Transport: tr}
-
-	return &Crawler{client, make([]Solution,0),getSolutions,exportProblems}
+	
+	sols := make([]Solution,0)
+	lookup := make(map[Identifier]int)
+	
+	latest, err := os.Open("data.json")
+	if err == nil {
+		defer latest.Close()
+		
+		dec := json.NewDecoder(latest)
+		err = dec.Decode(&sols)
+		if err != nil {
+			panic(err)
+		}
+		
+		for ind, sol := range sols {
+			lookup[sol.Identifier]=ind
+		}
+	}
+	
+	
+	return &Crawler{client, sols, lookup, getSolutions,exportProblems}
 }
 
 func (c* Crawler) Crawl(id, L, R int) (error){
@@ -65,7 +99,17 @@ func (c* Crawler) Crawl(id, L, R int) (error){
 
 			if(c.getSolutions) {
 				for _, val := range GetSolvers(c.client) {
-					c.sols = append(c.sols, Solution{statement, topic, problem, val.Name, val.Point})
+					ident := Identifier{topic, problem, val.Name}
+					if _, ok := c.lookup[ident]; !ok {
+						c.sols = append(c.sols, Solution{statement, ident, val.Point, make([]PointHistoryElem, 1)})
+						c.sols[len(c.sols)-1].PointHistory[0]=PointHistoryElem{val.Point, time.Now()};
+						c.lookup[ident]=len(c.sols)-1
+					}else {
+						if c.sols[c.lookup[ident]].Point != val.Point {
+							c.sols[c.lookup[ident]].Point = val.Point
+							c.sols[c.lookup[ident]].PointHistory = append(c.sols[len(c.sols)-1].PointHistory, PointHistoryElem{val.Point, time.Now()});
+						}
+					}
 				}
 			}
 		}

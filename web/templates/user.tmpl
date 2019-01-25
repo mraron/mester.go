@@ -1,10 +1,32 @@
 <div style="width:1000;height:500;"><div id="userChart"></div></div>
+<br>
+Megoldások:
+<table class="table is-bordered is-fullwidth">
+<thead>
+<tr><td><b>Téma</b></td> <td><b>Feladat</b></td> <td><b>Pontszám</b></td></tr>
+</thead>
 
-<table border="1">
 {{range $i := .Solutions}}
 <tr><td>{{$i.Topic}}</td><td><a href="/problem/?topic={{$i.Topic}}&problem={{$i.Problem}}">{{$i.Problem}}</a></td><td>{{$i.Point}}</td></tr>
 {{end}}
 </table>
+
+<br>
+<br>
+<br>
+Státusz:
+
+<table class="table is-bordered is-fullwidth">
+<tr><td><b>Téma</b></td> <td><b>Feladat</b></td> <td><b>Pontszám</b></td> <td><b>Idő</b></td></tr>
+{{range $i := .Submissions}}
+<tr>
+<td>{{$i.Topic}}</td>
+<td>{{$i.Problem}}</td>
+<td>{{$i.Point}}</td>
+<td>{{$i.Time}}</td>
+{{end}}
+</table>
+
 
 <script>
 var trace = {
